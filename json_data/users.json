@@ -1,0 +1,79 @@
+[
+  {
+    "name": "Rohit",
+    "email": "aor27@txstate.edu",
+    "password": "CarpoolKaraoke@123",
+    "phone": "6661008888",
+    "has_car": true,
+    "cars": [
+      {
+        "model": "Fusion",
+        "make": "Ford",
+        "color": "BLACK",
+        "year": 2010,
+        "license_plate": "JIA2099"
+      }
+    ]
+  },
+  {
+    "name": "Jaap Stam",
+    "email": "jsm44@txstate.edu",
+    "password": "CarpoolKaraoke@123",
+    "phone": "2123338097",
+    "has_car": true,
+    "cars": [
+      {
+        "model": "Accord",
+        "make": "Honda",
+        "color": "BLUE",
+        "year": 2013,
+        "license_plate": "RAV7800"
+      }
+    ]
+  },
+  {
+    "name": "Paolo Maldini",
+    "email": "pml87@txstate.edu",
+    "password": "CarpoolKaraoke@123",
+    "phone": "5554447090"
+  },
+  {
+    "name": "Alessandro Nesta",
+    "email": "asn99@txstate.edu",
+    "password": "CarpoolKaraoke@123",
+    "phone": "5127776008",
+    "has_car": true,
+    "cars": [
+      {
+        "model": "Fusion",
+        "make": "Ford",
+        "color": "SILVER",
+        "year": 2019,
+        "license_plate": "JAX2112"
+      },
+      {
+        "model": "Model X",
+        "make": "Tesla",
+        "color": "WHITE",
+        "year": 2017,
+        "license_plate": "SRT5655"
+      }
+    ]
+  },
+  {
+    "name": "Gennaro Gattuso",
+    "email": "geg68@txstate.edu",
+    "password": "CarpoolKaraoke@123",
+    "phone": "2228889999",
+    "has_car": true,
+    "cars": [
+      {
+        "model": "RAV4",
+        "make": "Toyoto",
+        "color": "BLUE",
+        "year": 2020,
+        "license_plate": "TAF2225"
+      }
+    ]
+  }
+]

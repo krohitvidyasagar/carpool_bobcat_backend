@@ -1,0 +1,121 @@
+[
+  {
+    "car_id": "28e985cb-d854-4af6-820e-26a90ef36bd4",
+    "source": "108 S Austin St, Seguin, TX 78155",
+    "source_coordinates": {
+      "lat": 29.5684865,
+      "lng": -97.9648355
+    },
+    "destination": "McCoy College of Business, San Marcos, TX",
+    "destination_coordinates": {
+      "lat": 29.888057687626,
+      "lng": -97.94466018676758
+    },
+    "time": "9:00 AM",
+    "date": "2023-12-14",
+    "seats_available": 3,
+    "price_per_seat": 15
+  },
+  {
+    "car_id": "48484ed4-ee04-46c9-a1a4-217bc038404b",
+    "source": "Derrick Hall, San Marcos, TX",
+    "source_coordinates": {
+      "lat": 29.88929368452977,
+      "lng": -97.94228593987702
+    },
+    "destination": "The Bradford, Robert S. Light Blvd, Buda, TX",
+    "destination_coordinates": {
+      "lat": 30.0618935,
+      "lng": -97.8364987
+    },
+    "time": "5:00 PM",
+    "date": "2023-12-13",
+    "seats_available": 2,
+    "price_per_seat": 20
+  },
+  {
+    "car_id": "28e985cb-d854-4af6-820e-26a90ef36bd4",
+    "source": "108 S Austin St, Seguin, TX 78155",
+    "source_coordinates": {
+      "lat": 29.5684865,
+      "lng": -97.9648355
+    },
+    "destination": "McCoy College of Business, San Marcos, TX",
+    "destination_coordinates": {
+      "lat": 29.888057687626,
+      "lng": -97.94466018676758
+    },
+    "time": "11:00 AM",
+    "date": "2023-12-13",
+    "seats_available": 3,
+    "price_per_seat": 15
+  },
+  {
+    "car_id": "28e985cb-d854-4af6-820e-26a90ef36bd4",
+    "source": "McCoy College of Business, San Marcos, TX",
+    "source_coordinates": {
+      "lat": 29.888057687626,
+      "lng": -97.94466018676758
+    },
+    "destination": "108 S Austin St, Seguin, TX 78155",
+    "destination_coordinates": {
+      "lat": 29.5684865,
+      "lng": -97.9648355
+    },
+    "time": "4:00 PM",
+    "date": "2023-12-13",
+    "seats_available": 3,
+    "price_per_seat": 15
+  },
+  {
+    "car_id": "48484ed4-ee04-46c9-a1a4-217bc038404b",
+    "source": "The Bradford, Robert S. Light Blvd, Buda, TX",
+    "source_coordinates": {
+      "lat": 30.0618935,
+      "lng": -97.8364987
+    },
+    "destination": "Derrick Hall, San Marcos, TX",
+    "destination_coordinates": {
+      "lat": 29.88929368452977,
+      "lng": -97.94228593987702
+    },
+    "time": "09:00 AM",
+    "date": "2023-12-13",
+    "seats_available": 2,
+    "price_per_seat": 22
+  },
+  {
+    "car_id": "1ea07d3c-303c-4ad3-bcfc-b783e91991dd",
+    "source": "San Jacinto Hall, San Marcos, TX, 78666",
+    "source_coordinates": {
+      "lat": 29.8868782,
+      "lng": -97.9439652
+    },
+    "destination": "New Braunfels, TX, 78130",
+    "destination_coordinates": {
+      "lat": 29.7029324,
+      "lng": -98.1418933
+    },
+    "time": "05:30 PM",
+    "date": "2023-12-18",
+    "seats_available": 3,
+    "price_per_seat": 10
+  },
+  {
+    "car_id": "1ea07d3c-303c-4ad3-bcfc-b783e91991dd",
+    "source": "Kyle, TX",
+    "source_coordinates": {
+      "lat": 29.988567,
+      "lng": -97.875638
+    },
+    "destination": "Student Recreation Center, San Marcos, TX",
+    "destination_coordinates": {
+      "lat": 29.888764630099658,
+      "lng": -97.95077562332153
+    },
+    "time": "07:30 AM",
+    "date": "2023-12-10",
+    "seats_available": 3,
+    "price_per_seat": 15
+  }
+]
