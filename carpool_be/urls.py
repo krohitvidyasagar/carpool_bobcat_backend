@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from carpool.views import UserRegistrationView, LoginView, UserVerifyView, UpdateProfileView, RideView
+from carpool.views import UserRegistrationView, LoginView, UserVerifyView, UserProfileView, RideView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,7 +28,7 @@ urlpatterns = [
     path('api/verify', UserVerifyView.as_view(), name=UserVerifyView.name),
 
     # Add an API for forgot password?
-    path('api/profile', UpdateProfileView.as_view(), name=UpdateProfileView.name),
+    path('api/profile', UserProfileView.as_view(), name=UserProfileView.name),
 
     path('api/ride', RideView.as_view(), name=RideView.name),
 ]
