@@ -6,7 +6,7 @@ from django.contrib.gis.db import models
 class User(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     name = models.CharField(max_length=100, null=False)
-    email = models.EmailField(max_length=100, null=False)
+    email = models.EmailField(max_length=100, null=False, unique=True)
     phone = models.CharField(max_length=20, null=True)
     password = models.CharField(max_length=100, null=False)
     has_car = models.BooleanField(default=False)
