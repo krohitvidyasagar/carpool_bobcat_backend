@@ -3,10 +3,13 @@ from rest_framework import generics
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.exceptions import AuthenticationFailed, ParseError
+from datetime import datetime
 
-from carpool.models import User
+from django.contrib.gis.geos import Point
+
+from carpool.models import User, Ride
 from carpool.service import AuthenticationUtils, EmailUtils, UserUtils
-from carpool.serializers import UserLoginSerializer
+from carpool.serializers import UserLoginSerializer, RideCreateSerializer
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -131,3 +134,43 @@ class UpdateProfileView(generics.UpdateAPIView):
             UserUtils.add_cars_of_user(user, cars_array)
 
         return Response({'detail': 'Profile has been updated successfully'})
+
+
+class RideView(generics.CreateAPIView):
+    name = 'ride-view'
+    queryset = Ride.objects.all()
+
+    def post(self, request, *args, **kwargs):
+        email = self.request.auth_context['user']
+        user = User.objects.get(email=email)
+
+        source = self.request.data['source']
+        source_lat = self.request.data['source_coordinates']['lat']
+        source_lng = self.request.data['source_coordinates']['lng']
+
+        destination = self.request.data['destination']
+        destination_lat = self.request.data['destination_coordinates']['lat']
+        destination_lng = self.request.data['destination_coordinates']['lng']
+
+        received_date = self.request.data['date']
+        received_time = self.request.data['time']
+
+        # Convert string to date and time objects
+        formatted_date = datetime.strptime(received_date, '%Y-%m-%d').date()
+        formatted_time = datetime.strptime(received_time, '%I:%M %p').time()
+
+        seats_available = self.request.data['seats_available']
+        price_per_seat = self.request.data['price_per_seat']
+
+        source_coordinates = Point(source_lat, source_lng)
+        destination_coordinates = Point(destination_lat, destination_lng)
+
+        ride = Ride.objects.create(
+            source=source, destination=destination, date=formatted_date, time=formatted_time,
+            available_seats=seats_available, price_per_seat=price_per_seat, driver=user,
+            source_coordinates=source_coordinates, destination_coordinates=destination_coordinates
+        )
+
+        serializer = RideCreateSerializer(ride)
+
+        return Response(serializer.data)
