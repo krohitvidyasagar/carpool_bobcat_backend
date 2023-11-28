@@ -14,6 +14,8 @@ class User(models.Model):
     api_secret = models.CharField(max_length=45, null=True)
     bio = models.TextField(null=True, blank=True)
 
+    # Add image here
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -60,9 +62,11 @@ class Ride(models.Model):
     destination_coordinates = models.PointField(null=False)
 
     driver = models.ForeignKey(User, on_delete=models.CASCADE)
+    car = models.ForeignKey(Car, on_delete=models.CASCADE, null=True)
+
     date = models.DateField(null=False)
     time = models.TimeField(null=False)
-    available_seats = models.IntegerField(null=False)
+    seats_available = models.IntegerField(null=False)
     price_per_seat = models.FloatField(null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)

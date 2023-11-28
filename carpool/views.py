@@ -7,7 +7,7 @@ from datetime import datetime
 
 from django.contrib.gis.geos import Point
 
-from carpool.models import User, Ride
+from carpool.models import User, Ride, CarOwner
 from carpool.service import AuthenticationUtils, EmailUtils, UserUtils
 from carpool.serializers import UserLoginSerializer, RideCreateSerializer
 
@@ -165,10 +165,14 @@ class RideView(generics.CreateAPIView):
         source_coordinates = Point(source_lat, source_lng)
         destination_coordinates = Point(destination_lat, destination_lng)
 
+        car_id = self.request.data['car_id']
+        car_owner = CarOwner.objects.get(car_id=car_id, owner_id=user.id)
+
         ride = Ride.objects.create(
             source=source, destination=destination, date=formatted_date, time=formatted_time,
-            available_seats=seats_available, price_per_seat=price_per_seat, driver=user,
-            source_coordinates=source_coordinates, destination_coordinates=destination_coordinates
+            seats_available=seats_available, price_per_seat=price_per_seat, driver=user,
+            source_coordinates=source_coordinates, destination_coordinates=destination_coordinates,
+            car=car_owner.car
         )
 
         serializer = RideCreateSerializer(ride)
