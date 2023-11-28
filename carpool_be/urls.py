@@ -27,9 +27,8 @@ urlpatterns = [
 
     path('api/verify', UserVerifyView.as_view(), name=UserVerifyView.name),
 
-    path('api/ride', RideView.as_view(), name=RideView.name),
-
     # Add an API for forgot password?
+    path('api/profile', UpdateProfileView.as_view(), name=UpdateProfileView.name),
 
-    path('api/profile', UpdateProfileView.as_view(), name=UpdateProfileView.name)
+    path('api/ride', RideView.as_view(), name=RideView.name),
 ]
