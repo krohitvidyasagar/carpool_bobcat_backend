@@ -9,7 +9,7 @@ from django.contrib.gis.geos import Point
 
 from carpool.models import User, Ride, CarOwner
 from carpool.service import AuthenticationUtils, EmailUtils, UserUtils
-from carpool.serializers import UserLoginSerializer, RideCreateSerializer
+from carpool.serializers import UserLoginSerializer, RideSerializer, UserProfileSerializer
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -114,9 +114,16 @@ class UserVerifyView(generics.ListAPIView):
             raise ParseError(detail='User not found')
 
 
-class UpdateProfileView(generics.UpdateAPIView):
-    name = 'update-profile-view'
+class UserProfileView(generics.RetrieveUpdateAPIView):
+    name = 'user-profile-view'
     queryset = User.objects.all()
+    serializer_class = UserProfileSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        email = self.request.auth_context['user']
+        user = User.objects.get(email=email)
+
+        return Response(self.get_serializer(user).data)
 
     def patch(self, request, *args, **kwargs):
         email = self.request.auth_context['user']
@@ -133,12 +140,28 @@ class UpdateProfileView(generics.UpdateAPIView):
             cars_array = self.request.data.get('cars')
             UserUtils.add_cars_of_user(user, cars_array)
 
-        return Response({'detail': 'Profile has been updated successfully'})
+        return Response(self.get_serializer(user).data)
 
 
-class RideView(generics.CreateAPIView):
+class RideView(generics.ListCreateAPIView):
     name = 'ride-view'
     queryset = Ride.objects.all()
+    serializer_class = RideSerializer
+
+    def list(self, request, *args, **kwargs):
+        email = self.request.auth_context['user']
+
+        rides = {
+            "driver": [],
+            "passenger": []
+        }
+
+        rides_as_driver_qs = self.get_queryset().filter(driver__email=email)
+
+        if rides_as_driver_qs.exists():
+            rides['driver'] = RideSerializer(rides_as_driver_qs, many=True).data
+
+        return Response(rides)
 
     def post(self, request, *args, **kwargs):
         email = self.request.auth_context['user']
@@ -175,6 +198,4 @@ class RideView(generics.CreateAPIView):
             car=car_owner.car
         )
 
-        serializer = RideCreateSerializer(ride)
-
-        return Response(serializer.data)
+        return Response(self.get_serializer(ride).data)
