@@ -7,7 +7,7 @@ class UserLoginSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['name', 'email', 'phone', 'has_car']
+        fields = ['id', 'name', 'email', 'phone', 'has_car']
 
 
 class CarSerializer(serializers.ModelSerializer):
@@ -22,7 +22,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['name', 'email', 'phone', 'has_car', 'bio', 'cars']
+        fields = ['id', 'name', 'email', 'phone', 'has_car', 'bio', 'cars']
 
     def get_cars(self, obj):
         car_ids = CarOwner.objects.filter(owner_id=obj.id).values_list('car_id', flat=True)
