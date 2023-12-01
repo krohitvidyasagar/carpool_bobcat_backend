@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from carpool.models import User, Ride, Car, CarOwner
+from carpool.models import User, Ride, Car, CarOwner, RiderReview
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
@@ -66,3 +66,12 @@ class RideSerializer(serializers.ModelSerializer):
             "lng": obj.destination_coordinates.x
         }
         return coordinates
+
+
+class RiderReviewSerializer(serializers.ModelSerializer):
+    rider = UserLoginSerializer()
+    passenger = UserLoginSerializer()
+
+    class Meta:
+        model = RiderReview
+        fields = ['rider', 'passenger', 'rating', 'review', 'created_at']
