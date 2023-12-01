@@ -7,9 +7,10 @@ from datetime import datetime
 
 from django.contrib.gis.geos import Point
 
-from carpool.models import User, Ride, CarOwner, DriverReview, RidePassenger
+from carpool.models import User, Ride, CarOwner, DriverReview, RidePassenger, Message
 from carpool.service import AuthenticationUtils, EmailUtils, UserUtils
-from carpool.serializers import UserLoginSerializer, RideSerializer, UserProfileSerializer, DriverReviewSerializer
+from carpool.serializers import UserLoginSerializer, RideSerializer, UserProfileSerializer, DriverReviewSerializer, \
+    MessageSerializer
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -229,4 +230,31 @@ class DriverReviewListCreateView(generics.ListCreateAPIView):
 
         serializer = self.get_serializer(driver_review)
 
+        return Response(serializer.data)
+
+
+class MessageView(generics.ListCreateAPIView):
+    name = 'message-view'
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+
+    def get_queryset(self):
+        ride_id = self.kwargs['ride_id']
+        return super().get_queryset().filter(ride_id=ride_id).order_by('created_at')
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        email = self.request.auth_context['user']
+        user = User.objects.get(email=email)
+
+        ride_id = self.kwargs['ride_id']
+        ride = Ride.objects.get(id=ride_id)
+
+        message = Message.objects.create(
+            ride=ride, sender=user, content=self.request.data['message']
+        )
+
+        serializer = self.get_serializer(message)
         return Response(serializer.data)
