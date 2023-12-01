@@ -107,6 +107,7 @@ class Message(models.Model):
     sender = models.ForeignKey(User, null=False, on_delete=models.DO_NOTHING)
 
     content = models.TextField(null=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
