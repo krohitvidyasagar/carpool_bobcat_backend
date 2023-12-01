@@ -5,9 +5,10 @@ This is a carpool application built on Django Rest Framework for the  Human Fact
 ## Requirements to run this project
 1. python
 2. pip
-3. postgis
-4. GDAL
+3. postgis (https://postgis.net/workshops/postgis-intro/installation.html)
+4. GDAL (https://gdal.org/download.html)
 5. postgres with a database named carpool_db
+6. Log into the carpool_db and execute a command `CREATE EXTENSION POSTGIS`
 
 ## To run the project
 
