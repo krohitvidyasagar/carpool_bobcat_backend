@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from carpool.models import User, Ride, Car, CarOwner, DriverReview
+from carpool.models import User, Ride, Car, CarOwner, DriverReview, Message
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
@@ -74,7 +74,8 @@ class RideMinSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ride
-        fields = ['id', 'driver', 'car']
+        fields = ['id', 'driver', 'car', 'date', 'time', 'seats_available', 'price_per_seat',
+                  'source', 'destination']
 
     def get_driver(self, obj):
         driver = User.objects.get(id=obj.driver.id)
@@ -92,3 +93,12 @@ class DriverReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = DriverReview
         fields = ['ride', 'passenger', 'rating', 'review', 'created_at']
+
+
+class MessageSerializer(serializers.ModelSerializer):
+    ride = RideMinSerializer()
+    sender = UserLoginSerializer()
+
+    class Meta:
+        model = Message
+        fields = ['ride', 'sender', 'content', 'timestamp', 'created_at']
