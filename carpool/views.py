@@ -7,9 +7,9 @@ from datetime import datetime
 
 from django.contrib.gis.geos import Point
 
-from carpool.models import User, Ride, CarOwner
+from carpool.models import User, Ride, CarOwner, DriverReview, RidePassenger
 from carpool.service import AuthenticationUtils, EmailUtils, UserUtils
-from carpool.serializers import UserLoginSerializer, RideSerializer, UserProfileSerializer
+from carpool.serializers import UserLoginSerializer, RideSerializer, UserProfileSerializer, DriverReviewSerializer
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -199,3 +199,34 @@ class RideView(generics.ListCreateAPIView):
         )
 
         return Response(self.get_serializer(ride).data)
+
+
+class DriverReviewListCreateView(generics.ListCreateAPIView):
+    name = 'rider-review-list-create-view'
+    queryset = DriverReview.objects.all()
+    serializer_class = DriverReviewSerializer
+
+    def get_queryset(self):
+        driver_email = self.request.query_params['driver']
+        return super().get_queryset().filter(ride__driver__email=driver_email)
+
+    def post(self, request, *args, **kwargs):
+        email = self.request.auth_context['user']
+        user = User.objects.get(email=email)
+
+        ride_id = self.request.data['ride_id']
+
+        # Check if user has taken the ride
+        try:
+            ride_passenger = RidePassenger.objects.get(ride_id=ride_id, passenger_id=user.id)
+        except ObjectDoesNotExist:
+            raise ParseError(detail='User has not taken this ride')
+
+        driver_review = DriverReview.objects.create(
+            ride=ride_passenger.ride, passenger=user, rating=self.request.data['rating'],
+            review=self.request.data['review']
+        )
+
+        serializer = self.get_serializer(driver_review)
+
+        return Response(serializer.data)
