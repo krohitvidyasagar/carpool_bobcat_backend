@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from carpool.models import User, Ride, Car, CarOwner, RiderReview
+from carpool.models import User, Ride, Car, CarOwner, DriverReview
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
@@ -85,10 +85,10 @@ class RideMinSerializer(serializers.ModelSerializer):
         return CarSerializer(car).data
 
 
-class RiderReviewSerializer(serializers.ModelSerializer):
+class DriverReviewSerializer(serializers.ModelSerializer):
     ride = RideMinSerializer()
     passenger = UserLoginSerializer()
 
     class Meta:
-        model = RiderReview
+        model = DriverReview
         fields = ['ride', 'passenger', 'rating', 'review', 'created_at']

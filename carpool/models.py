@@ -88,8 +88,7 @@ class RidePassenger(models.Model):
         ordering = ['-created_at']
 
 
-class RiderReview(models.Model):
-    rider = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rider', null=True)
+class DriverReview(models.Model):
     ride = models.ForeignKey(Ride, on_delete=models.DO_NOTHING)
     passenger = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='passenger', null=True)
 
@@ -99,5 +98,5 @@ class RiderReview(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = 'rider_review'
+        db_table = 'driver_review'
         ordering = ['-created_at']
