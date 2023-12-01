@@ -1,6 +1,7 @@
 import uuid
 
 from django.contrib.gis.db import models
+from django.core.validators import MaxValueValidator
 
 
 class User(models.Model):
@@ -87,15 +88,16 @@ class RidePassenger(models.Model):
         ordering = ['-created_at']
 
 
-class RideReview(models.Model):
-    ride = models.ForeignKey(Ride, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+class RiderReview(models.Model):
+    rider = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rider', null=True)
+    ride = models.ForeignKey(Ride, on_delete=models.DO_NOTHING)
+    passenger = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='passenger', null=True)
 
-    rating = models.IntegerField(null=False)
+    rating = models.IntegerField(null=False, validators=[MaxValueValidator(5)])
     review = models.TextField(null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = 'ride_review'
+        db_table = 'rider_review'
         ordering = ['-created_at']
