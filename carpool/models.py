@@ -100,3 +100,16 @@ class DriverReview(models.Model):
     class Meta:
         db_table = 'driver_review'
         ordering = ['-created_at']
+
+
+class Message(models.Model):
+    ride = models.ForeignKey(Ride, null=False, on_delete=models.CASCADE)
+    sender = models.ForeignKey(User, null=False, on_delete=models.DO_NOTHING)
+
+    content = models.TextField(null=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'message'
+        ordering = ['-created_at']
