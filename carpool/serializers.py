@@ -68,10 +68,27 @@ class RideSerializer(serializers.ModelSerializer):
         return coordinates
 
 
+class RideMinSerializer(serializers.ModelSerializer):
+    driver = serializers.SerializerMethodField()
+    car = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Ride
+        fields = ['id', 'driver', 'car']
+
+    def get_driver(self, obj):
+        driver = User.objects.get(id=obj.driver.id)
+        return UserLoginSerializer(driver).data
+
+    def get_car(self, obj):
+        car = Car.objects.get(id=obj.car.id)
+        return CarSerializer(car).data
+
+
 class RiderReviewSerializer(serializers.ModelSerializer):
-    rider = UserLoginSerializer()
+    ride = RideMinSerializer()
     passenger = UserLoginSerializer()
 
     class Meta:
         model = RiderReview
-        fields = ['rider', 'passenger', 'rating', 'review', 'created_at']
+        fields = ['ride', 'passenger', 'rating', 'review', 'created_at']
