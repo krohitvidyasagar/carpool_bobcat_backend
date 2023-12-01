@@ -98,7 +98,8 @@ class DriverReviewSerializer(serializers.ModelSerializer):
 class MessageSerializer(serializers.ModelSerializer):
     ride = RideMinSerializer()
     sender = UserLoginSerializer()
+    message = serializers.CharField(source='content')
 
     class Meta:
         model = Message
-        fields = ['ride', 'sender', 'content', 'timestamp', 'created_at']
+        fields = ['ride', 'sender', 'message', 'timestamp', 'created_at']
