@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db.models import Avg
 
 from carpool.models import User, Ride, Car, CarOwner, DriverReview, Message
 
@@ -19,10 +20,20 @@ class CarSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     cars = serializers.SerializerMethodField()
+    rating = serializers.SerializerMethodField()
+    trips = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'name', 'email', 'phone', 'has_car', 'bio', 'cars']
+        fields = ['id', 'name', 'email', 'phone', 'has_car', 'bio', 'cars', 'speaks', 'studies',
+                  'from_location', 'rating', 'trips']
+
+    def get_rating(self, obj):
+        avg_value = DriverReview.objects.filter(ride__driver_id=obj.id).aggregate(avg_field=Avg('rating'))
+        return avg_value['avg_field']
+
+    def get_trips(self, obj):
+        return Ride.objects.filter(driver_id=obj.id).count()
 
     def get_cars(self, obj):
         car_ids = CarOwner.objects.filter(owner_id=obj.id).values_list('car_id', flat=True)
