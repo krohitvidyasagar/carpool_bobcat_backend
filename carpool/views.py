@@ -131,7 +131,13 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
         user = User.objects.get(email=email)
 
         phone = self.request.data.get('phone')
+        speaks = self.request.data.get('speaks')
+        studies = self.request.data.get('studies')
+        from_location = self.request.data.get('from_location')
 
+        user.speaks = speaks
+        user.studies = studies
+        user.from_location = from_location
         user.phone = phone
         user.save()
 
