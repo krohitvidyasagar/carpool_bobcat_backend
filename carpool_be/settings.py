@@ -91,7 +91,7 @@ DATABASES = {
         'NAME': 'carpool_db',
         'USER': 'postgres',
         'PASSWORD': 'Database@2023',
-        'HOST': 'localhost',
+        'HOST': '127.0.0.1',
         'PORT': '5432'
     }
 }
