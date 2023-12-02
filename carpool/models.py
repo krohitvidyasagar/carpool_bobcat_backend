@@ -15,6 +15,10 @@ class User(models.Model):
     api_secret = models.CharField(max_length=45, null=True)
     bio = models.TextField(null=True, blank=True)
 
+    speaks = models.JSONField(null=True, blank=True)
+    studies = models.CharField(max_length=100, null=True)
+    from_location = models.CharField(max_length=100, null=True)
+
     # Add image here
 
     created_at = models.DateTimeField(auto_now_add=True)
