@@ -222,13 +222,23 @@ class DriverReviewListCreateView(generics.ListCreateAPIView):
     queryset = DriverReview.objects.all()
     serializer_class = DriverReviewSerializer
 
-    def get_queryset(self):
-        driver_email = self.request.query_params['driver']
-        return super().get_queryset().filter(ride__driver__email=driver_email)
-
     def get(self, request, *args, **kwargs):
         # TODO: Modify this API according to what Kathia needs
-        return super().get(request, *args, **kwargs)
+        driver_email = self.request.query_params['driver']
+        driver = User.objects.get(email=driver_email)
+
+        profile = UserProfileSerializer(driver).data
+
+        reviews_qs = self.get_queryset().filter(ride__driver_id=driver.id)
+
+        reviews_serializer = DriverReviewSerializer(reviews_qs, many=True)
+
+        data = {
+            'profile': profile,
+            'reviews': reviews_serializer.data
+        }
+
+        return Response(data)
 
     def post(self, request, *args, **kwargs):
         email = self.request.auth_context['user']
