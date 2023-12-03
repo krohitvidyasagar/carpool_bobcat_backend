@@ -373,12 +373,14 @@ class PassengerRideView(generics.CreateAPIView):
         # Define the time range for departure (2 hours from now)
         pickup_time = datetime.strptime(self.request.data['datetime'], '%Y-%m-%dT%H:%M')
 
-        RidePassenger.objects.create(ride=ride, passenger=user)
+        RidePassenger.objects.create(
+            ride=ride, passenger=user, pickup_location=pickup_location, pickup_coordinates=passenger_source,
+            drop_off_location=drop_off_location, drop_off_coordinates=passenger_destination, pickup_time=pickup_time
+        )
 
         ride.seats_available = ride.seats_available - 1
         ride.save()
 
-        # TODO: Have a discussion on what the response should be
         return Response({'detail': 'Your ride has been confirmed'})
 
 
