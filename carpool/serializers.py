@@ -136,7 +136,7 @@ class RidePassengerSerializer(serializers.ModelSerializer):
 
 class DriverReviewSerializer(serializers.ModelSerializer):
     ride = RideSerializer()
-    passenger = UserLoginSerializer()
+    passenger = UserProfileSerializer()
 
     class Meta:
         model = DriverReview
