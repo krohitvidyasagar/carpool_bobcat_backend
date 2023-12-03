@@ -280,7 +280,39 @@ class MessageView(generics.ListCreateAPIView):
         return Response(serializer.data)
 
 
-class PassengerRideView(generics.ListCreateAPIView):
+class FindRideView(generics.CreateAPIView):
+    name = 'find-ride-view'
+    queryset = Ride.objects.all()
+    serializer_class = RideSerializer
+
+    def post(self, request, *args, **kwargs):
+        pickup_coordinates = self.request.data['pickup_coordinates']
+        drop_off_coordinates = self.request.data['drop_off_coordinates']
+
+        # Passenger details
+        passenger_source = "POINT({} {})".format(pickup_coordinates['lat'], pickup_coordinates['lng'])
+        passenger_destination = "POINT({} {})".format(drop_off_coordinates['lat'], drop_off_coordinates['lng'])
+
+        # Define the time range for departure (2 hours from now)
+        departure_time = datetime.strptime(self.request.data['datetime'], '%Y-%m-%dT%H:%M')
+        two_hours_before = departure_time - timedelta(hours=2)
+        two_hours_later = departure_time + timedelta(hours=2)
+
+        # Find rides within 5 miles of source and destination, and within the time range
+        rides = Ride.objects.filter(
+            source_coordinates__distance_lte=(passenger_source, Distance(mi=5)),
+            destination_coordinates__distance_lte=(passenger_destination, Distance(mi=5)),
+            date=departure_time.date(),
+            time__range=(two_hours_before.time(), two_hours_later.time()),
+            seats_available__gte=1
+        ).select_related('driver', 'car')
+
+        available_rides = RideSerializer(rides, many=True).data
+
+        return Response(available_rides)
+
+
+class PassengerRideView(generics.CreateAPIView):
     name = 'passenger-ride-view'
     queryset = Ride.objects.all()
     serializer_class = RideSerializer
