@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 
 from carpool.views import UserRegistrationView, LoginView, UserVerifyView, UserProfileView, RideView, \
-    DriverReviewListCreateView, MessageView
+    DriverReviewListCreateView, MessageView, PassengerRideView, ImageUploadView
 
 urlpatterns = [
     path('admin/', admin.site.urls),

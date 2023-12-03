@@ -1,16 +1,21 @@
+import base64
+
 from django.http import HttpResponseRedirect
 from rest_framework import generics
+from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.exceptions import AuthenticationFailed, ParseError
-from datetime import datetime
+from datetime import datetime, timedelta
+from django.utils import timezone
 
 from django.contrib.gis.geos import Point
+from django.contrib.gis.measure import Distance
 
 from carpool.models import User, Ride, CarOwner, DriverReview, RidePassenger, Message
 from carpool.service import AuthenticationUtils, EmailUtils, UserUtils
 from carpool.serializers import UserLoginSerializer, RideSerializer, UserProfileSerializer, DriverReviewSerializer, \
-    MessageSerializer
+    MessageSerializer, RidePassengerSerializer
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -168,6 +173,11 @@ class RideView(generics.ListCreateAPIView):
         if rides_as_driver_qs.exists():
             rides['driver'] = RideSerializer(rides_as_driver_qs, many=True).data
 
+        rides_as_passenger_qs = RidePassenger.objects.filter(passenger__email=email)
+
+        if rides_as_passenger_qs.exists():
+            rides['passenger'] = RidePassengerSerializer(rides_as_passenger_qs, many=True).data
+
         return Response(rides)
 
     def post(self, request, *args, **kwargs):
@@ -187,7 +197,7 @@ class RideView(generics.ListCreateAPIView):
 
         # Convert string to date and time objects
         formatted_date = datetime.strptime(received_date, '%Y-%m-%d').date()
-        formatted_time = datetime.strptime(received_time, '%I:%M %p').time()
+        formatted_time = datetime.strptime(received_time, '%H:%M').time()
 
         seats_available = self.request.data['seats_available']
         price_per_seat = self.request.data['price_per_seat']
@@ -195,8 +205,7 @@ class RideView(generics.ListCreateAPIView):
         source_coordinates = Point(source_lat, source_lng)
         destination_coordinates = Point(destination_lat, destination_lng)
 
-        car_id = self.request.data['car_id']
-        car_owner = CarOwner.objects.get(car_id=car_id, owner_id=user.id)
+        car_owner = CarOwner.objects.filter(owner_id=user.id).first()
 
         ride = Ride.objects.create(
             source=source, destination=destination, date=formatted_date, time=formatted_time,
@@ -217,20 +226,25 @@ class DriverReviewListCreateView(generics.ListCreateAPIView):
         driver_email = self.request.query_params['driver']
         return super().get_queryset().filter(ride__driver__email=driver_email)
 
+    def get(self, request, *args, **kwargs):
+        # TODO: Modify this API according to what Kathia needs
+        return super().get(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
         email = self.request.auth_context['user']
         user = User.objects.get(email=email)
 
         ride_id = self.request.data['ride_id']
+        ride = Ride.objects.get(id=ride_id)
 
         # Check if user has taken the ride
-        try:
-            ride_passenger = RidePassenger.objects.get(ride_id=ride_id, passenger_id=user.id)
-        except ObjectDoesNotExist:
-            raise ParseError(detail='User has not taken this ride')
+        # try:
+        #     ride_passenger = RidePassenger.objects.get(ride_id=ride_id, passenger_id=user.id)
+        # except ObjectDoesNotExist:
+        #     raise ParseError(detail='User has not taken this ride')
 
         driver_review = DriverReview.objects.create(
-            ride=ride_passenger.ride, passenger=user, rating=self.request.data['rating'],
+            ride=ride, passenger=user, rating=self.request.data['rating'],
             review=self.request.data['review']
         )
 
@@ -264,3 +278,106 @@ class MessageView(generics.ListCreateAPIView):
 
         serializer = self.get_serializer(message)
         return Response(serializer.data)
+
+
+class PassengerRideView(generics.ListCreateAPIView):
+    name = 'passenger-ride-view'
+    queryset = Ride.objects.all()
+    serializer_class = RideSerializer
+
+    def get(self, request, *args, **kwargs):
+        pickup_coordinates = self.request.data['pickup_coordinates']
+        drop_off_coordinates = self.request.data['drop_off_coordinates']
+
+        # Passenger details
+        passenger_source = "POINT({} {})".format(pickup_coordinates['lat'], pickup_coordinates['lng'])
+        passenger_destination = "POINT({} {})".format(drop_off_coordinates['lat'], drop_off_coordinates['lng'])
+
+        # Define the time range for departure (2 hours from now)
+        departure_time = datetime.strptime(self.request.data['datetime'], '%m/%d/%YT%H:%M')
+        two_hours_before = departure_time - timedelta(hours=2)
+        two_hours_later = departure_time + timedelta(hours=2)
+
+        # Find rides within 5 miles of source and destination, and within the time range
+        rides = Ride.objects.filter(
+            source_coordinates__distance_lte=(passenger_source, Distance(mi=5)),
+            destination_coordinates__distance_lte=(passenger_destination, Distance(mi=5)),
+            date=departure_time.date(),
+            time__range=(two_hours_before.time(), two_hours_later.time()),
+            seats_available__gte=1
+        ).select_related('driver', 'car')
+
+        available_rides = RideSerializer(rides, many=True).data
+
+        return Response(available_rides)
+
+    def post(self, request, *args, **kwargs):
+        email = self.request.auth_context['user']
+        user = User.objects.get(email=email)
+
+        ride_id = self.request.data['ride_id']
+        ride = Ride.objects.get(id=ride_id)
+
+        pickup_location = self.request.data['pickup_location']
+        pickup_coordinates = self.request.data['pickup_coordinates']
+
+        drop_off_location = self.request.data['drop_off_location']
+        drop_off_coordinates = self.request.data['drop_off_coordinates']
+
+        # Passenger details
+        passenger_source = "POINT({} {})".format(pickup_coordinates['lat'], pickup_coordinates['lng'])
+        passenger_destination = "POINT({} {})".format(drop_off_coordinates['lat'], drop_off_coordinates['lng'])
+
+        # Define the time range for departure (2 hours from now)
+        pickup_time = datetime.strptime(self.request.data['datetime'], '%m/%d/%YT%H:%M')
+
+        RidePassenger.objects.create(ride=ride, passenger=user)
+
+        ride.seats_available = ride.seats_available - 1
+        ride.save()
+
+        # TODO: Have a discussion on what the response should be
+        return Response({'detail': 'Your ride has been confirmed'})
+
+
+class PassengerRideCancelView(generics.DestroyAPIView):
+    name = 'passenger-ride-cancel-view'
+    queryset = RidePassenger.objects.all()
+
+    def delete(self, request, *args, **kwargs):
+        email = self.request.auth_context['user']
+        user = User.objects.get(email=email)
+
+        ride_id = self.kwargs['ride_id']
+
+        ride_passenger = RidePassenger.objects.get(ride_id=ride_id, passenger_id=user.id)
+        ride_passenger.delete()
+
+        ride = Ride.objects.get(id=ride_id)
+        ride.seats_available = ride.seats_available + 1
+        ride.save()
+
+        return Response({'detail': 'Your booking has been cancelled successfully'})
+
+
+class ImageUploadView(generics.CreateAPIView):
+    name = 'image-upload-view'
+    parser_classes = [MultiPartParser]
+
+    def post(self, request, *args, **kwargs):
+        email = self.request.auth_context['user']
+        user = User.objects.get(email=email)
+
+        if self.request.FILES and 'profile_photo' in self.request.FILES:
+            profile_photo = self.request.FILES['profile_photo']
+            profile_photo_base64 = base64.b64encode(profile_photo.read()).decode('utf-8')
+            user.profile_photo_base64 = profile_photo_base64
+
+        if self.request.FILES and 'cover_photo' in self.request.FILES:
+            cover_photo = self.request.FILES['cover_photo']
+            cover_photo_base64 = base64.b64encode(cover_photo.read()).decode('utf-8')
+            user.cover_photo_base64 = cover_photo_base64
+
+        user.save()
+
+        return Response({'detail': 'Image uploaded successfully.'})

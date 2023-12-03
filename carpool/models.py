@@ -19,7 +19,8 @@ class User(models.Model):
     studies = models.CharField(max_length=100, null=True)
     from_location = models.CharField(max_length=100, null=True)
 
-    # Add image here
+    profile_photo_base64 = models.TextField(null=True)
+    cover_photo_base64 = models.TextField(null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

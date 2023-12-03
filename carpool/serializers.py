@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.db.models import Avg
 
-from carpool.models import User, Ride, Car, CarOwner, DriverReview, Message
+from carpool.models import User, Ride, Car, CarOwner, DriverReview, Message, RidePassenger
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
@@ -22,11 +22,19 @@ class UserProfileSerializer(serializers.ModelSerializer):
     cars = serializers.SerializerMethodField()
     rating = serializers.SerializerMethodField()
     trips = serializers.SerializerMethodField()
+    profile_photo = serializers.SerializerMethodField()
+    cover_photo = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ['id', 'name', 'email', 'phone', 'has_car', 'bio', 'cars', 'speaks', 'studies',
-                  'from_location', 'rating', 'trips']
+                  'from_location', 'rating', 'trips', 'created_at', 'profile_photo', 'cover_photo']
+
+    def get_cover_photo(self, obj):
+        return obj.cover_photo_base64
+
+    def get_profile_photo(self, obj):
+        return obj.profile_photo_base64
 
     def get_rating(self, obj):
         avg_value = DriverReview.objects.filter(ride__driver_id=obj.id).aggregate(avg_field=Avg('rating'))
@@ -95,6 +103,16 @@ class RideMinSerializer(serializers.ModelSerializer):
     def get_car(self, obj):
         car = Car.objects.get(id=obj.car.id)
         return CarSerializer(car).data
+
+
+class RidePassengerSerializer(serializers.ModelSerializer):
+    ride = RideSerializer()
+    passenger = UserLoginSerializer()
+
+    class Meta:
+        model = RidePassenger
+        # TODO: Add fields here of source and destination
+        fields = ['ride', 'passenger']
 
 
 class DriverReviewSerializer(serializers.ModelSerializer):
