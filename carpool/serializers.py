@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.db.models import Avg
+from geopy.distance import geodesic
 
 from carpool.models import User, Ride, Car, CarOwner, DriverReview, Message, RidePassenger
 
@@ -58,11 +59,12 @@ class RideSerializer(serializers.ModelSerializer):
     car = serializers.SerializerMethodField()
     source_coordinates = serializers.SerializerMethodField()
     destination_coordinates = serializers.SerializerMethodField()
+    distance_in_miles = serializers.SerializerMethodField()
 
     class Meta:
         model = Ride
         fields = ['id', 'source', 'source_coordinates', 'destination', 'destination_coordinates', 'driver',
-                  'car', 'date', 'time', 'seats_available', 'price_per_seat']
+                  'car', 'date', 'time', 'seats_available', 'price_per_seat', 'distance_in_miles']
 
     def get_driver(self, obj):
         driver = User.objects.get(id=obj.driver.id)
@@ -85,6 +87,9 @@ class RideSerializer(serializers.ModelSerializer):
             "lng": obj.destination_coordinates.x
         }
         return coordinates
+
+    def get_distance_in_miles(self, obj):
+        return round(geodesic(obj.source_coordinates, obj.destination_coordinates).miles, 2)
 
 
 class RideMinSerializer(serializers.ModelSerializer):
