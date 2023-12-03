@@ -21,15 +21,35 @@ from carpool.views import UserRegistrationView, LoginView, UserVerifyView, UserP
     DriverReviewListCreateView, MessageView, PassengerRideView, ImageUploadView, FindRideView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-
+    # API to register new users
     path('api/register', UserRegistrationView.as_view(), name=UserRegistrationView.name),
+    # API to verify email address using token
+    path('api/verify', UserVerifyView.as_view(), name=UserVerifyView.name),
+    # API to login
     path('api/login', LoginView.as_view(), name=LoginView.name),
 
-    path('api/verify', UserVerifyView.as_view(), name=UserVerifyView.name),
-
-    # Add an API for forgot password?
+    # API to get or update profile
     path('api/profile', UserProfileView.as_view(), name=UserProfileView.name),
 
+    # API to create a new ride and to list all rides as driver or passengers
     path('api/ride', RideView.as_view(), name=RideView.name),
+
+    # API to list all nearby rides
+    path('api/find-ride', FindRideView.as_view(), name=FindRideView.name),
+
+    # API to book a ride for passenger
+    path('api/passenger-ride', PassengerRideView.as_view(), name=PassengerRideView.name),
+
+    # API to cancel a ride as a passenger
+    path('api/passenger-ride/<uuid:ride_id>', PassengerRideView.as_view(), name=PassengerRideView.name),
+
+    # API to list all reviews of a driver
+    # API to leave a review for a driver
+    path('api/review', DriverReviewListCreateView.as_view(), name=DriverReviewListCreateView.name),
+
+    # API to send a chat
+    # API to retrieve all messages of a chat
+    path('api/ride/<uuid:ride_id>/message', MessageView.as_view(), name=MessageView.name),
+
+    path('api/image', ImageUploadView.as_view(), name=ImageUploadView.name),
 ]
