@@ -371,7 +371,7 @@ class PassengerRideView(generics.CreateAPIView):
         passenger_destination = "POINT({} {})".format(drop_off_coordinates['lat'], drop_off_coordinates['lng'])
 
         # Define the time range for departure (2 hours from now)
-        pickup_time = datetime.strptime(self.request.data['datetime'], '%m/%d/%YT%H:%M')
+        pickup_time = datetime.strptime(self.request.data['datetime'], '%Y-%m-%dT%H:%M')
 
         RidePassenger.objects.create(ride=ride, passenger=user)
 
