@@ -71,11 +71,13 @@ class RideSerializer(serializers.ModelSerializer):
     destination_coordinates = serializers.SerializerMethodField()
     distance_in_miles = serializers.SerializerMethodField()
     time_in_hrs = serializers.SerializerMethodField()
+    passengers = serializers.SerializerMethodField()
 
     class Meta:
         model = Ride
         fields = ['id', 'source', 'source_coordinates', 'destination', 'destination_coordinates', 'driver',
-                  'car', 'date', 'time', 'seats_available', 'price_per_seat', 'distance_in_miles', 'time_in_hrs']
+                  'car', 'date', 'time', 'seats_available', 'price_per_seat', 'distance_in_miles', 'time_in_hrs',
+                  'passengers']
 
     def get_driver(self, obj):
         driver = User.objects.get(id=obj.driver.id)
@@ -109,6 +111,17 @@ class RideSerializer(serializers.ModelSerializer):
         time_taken_hours = distance / average_speed_kmph
 
         return round(time_taken_hours, 2)
+
+    def get_passengers(self, obj):
+        passengers = []
+
+        ride_passenger_qs = RidePassenger.objects.filter(ride_id=obj.id)
+
+        for ride_passenger in ride_passenger_qs:
+            serializer = UserLoginSerializer(ride_passenger.passenger)
+            passengers.append(serializer.data)
+
+        return passengers
 
 
 class RidePassengerSerializer(serializers.ModelSerializer):
