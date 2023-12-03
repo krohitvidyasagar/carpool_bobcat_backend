@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.exceptions import AuthenticationFailed, ParseError
 from datetime import datetime, timedelta
-from django.utils import timezone
+from django.db.models import Q
 
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import Distance
@@ -129,7 +129,16 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
         email = self.request.auth_context['user']
         user = User.objects.get(email=email)
 
-        return Response(self.get_serializer(user).data)
+        profile = self.get_serializer(user).data
+
+        reviews_qs = DriverReview.objects.filter(Q(ride__driver_id=user.id) | Q(passenger_id=user.id))
+
+        if reviews_qs.exists():
+            profile['reviews'] = DriverReviewSerializer(reviews_qs, many=True).data
+        else:
+            profile['reviews'] = []
+
+        return Response(profile)
 
     def patch(self, request, *args, **kwargs):
         email = self.request.auth_context['user']
@@ -380,6 +389,8 @@ class PassengerRideView(generics.CreateAPIView):
 
         ride.seats_available = ride.seats_available - 1
         ride.save()
+
+        # HEREEEEEEEE
 
         return Response({'detail': 'Your ride has been confirmed'})
 

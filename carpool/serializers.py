@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.db.models import Avg
+from django.db.models import Q
 from geopy.distance import geodesic
 
 from carpool.models import User, Ride, Car, CarOwner, DriverReview, Message, RidePassenger
@@ -38,11 +39,20 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return obj.profile_photo_base64
 
     def get_rating(self, obj):
-        avg_value = DriverReview.objects.filter(ride__driver_id=obj.id).aggregate(avg_field=Avg('rating'))
-        return avg_value['avg_field']
+        driver_review_qs = DriverReview.objects.filter(Q(ride__driver_id=obj.id) | Q(passenger_id=obj.id))
+
+        if driver_review_qs.exists():
+            avg_value = driver_review_qs.aggregate(avg_field=Avg('rating'))
+            return avg_value['avg_field']
+        else:
+            return 0
 
     def get_trips(self, obj):
-        return Ride.objects.filter(driver_id=obj.id).count()
+        rides_as_driver_count = Ride.objects.filter(driver_id=obj.id).count()
+
+        rides_as_passenger_count = RidePassenger.objects.filter(passenger_id=obj.id).count()
+
+        return rides_as_driver_count + rides_as_passenger_count
 
     def get_cars(self, obj):
         car_ids = CarOwner.objects.filter(owner_id=obj.id).values_list('car_id', flat=True)
@@ -69,7 +79,7 @@ class RideSerializer(serializers.ModelSerializer):
 
     def get_driver(self, obj):
         driver = User.objects.get(id=obj.driver.id)
-        return UserLoginSerializer(driver).data
+        return UserProfileSerializer(driver).data
 
     def get_car(self, obj):
         car = Car.objects.get(id=obj.car.id)
@@ -101,24 +111,6 @@ class RideSerializer(serializers.ModelSerializer):
         return round(time_taken_hours, 2)
 
 
-class RideMinSerializer(serializers.ModelSerializer):
-    driver = serializers.SerializerMethodField()
-    car = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Ride
-        fields = ['id', 'driver', 'car', 'date', 'time', 'seats_available', 'price_per_seat',
-                  'source', 'destination']
-
-    def get_driver(self, obj):
-        driver = User.objects.get(id=obj.driver.id)
-        return UserLoginSerializer(driver).data
-
-    def get_car(self, obj):
-        car = Car.objects.get(id=obj.car.id)
-        return CarSerializer(car).data
-
-
 class RidePassengerSerializer(serializers.ModelSerializer):
     ride = RideSerializer()
     passenger = UserLoginSerializer()
@@ -130,7 +122,7 @@ class RidePassengerSerializer(serializers.ModelSerializer):
 
 
 class DriverReviewSerializer(serializers.ModelSerializer):
-    ride = RideMinSerializer()
+    ride = RideSerializer()
     passenger = UserLoginSerializer()
 
     class Meta:
@@ -139,10 +131,9 @@ class DriverReviewSerializer(serializers.ModelSerializer):
 
 
 class MessageSerializer(serializers.ModelSerializer):
-    ride = RideMinSerializer()
     sender = UserLoginSerializer()
     message = serializers.CharField(source='content')
 
     class Meta:
         model = Message
-        fields = ['ride', 'sender', 'message', 'timestamp', 'created_at']
+        fields = ['sender', 'message', 'timestamp', 'created_at']
