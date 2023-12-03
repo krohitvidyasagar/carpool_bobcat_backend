@@ -86,6 +86,14 @@ class RidePassenger(models.Model):
     ride = models.ForeignKey(Ride, on_delete=models.CASCADE)
     passenger = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    pickup_location = models.CharField(max_length=200, null=True)
+    pickup_coordinates = models.PointField(null=True)
+
+    drop_off_location = models.CharField(max_length=200, null=True)
+    drop_off_coordinates = models.PointField(null=True)
+
+    pickup_time = models.DateTimeField(null=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
