@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  db:
+    image: postgis/postgis:13-3.1
+    environment:
+      POSTGRES_DB: carpool_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Database@2023
+    ports:
+      - "5433:5432"  # Expose PostgreSQL port
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - GDAL_LIBRARY_PATH=/usr/lib/libgdal.so.26  # Update this path based on your installation
+    ports:
+      - "8000:8000"  # Expose Django port
+    depends_on:
+      - db  # Ensure the 'web' service starts after the 'db' service
