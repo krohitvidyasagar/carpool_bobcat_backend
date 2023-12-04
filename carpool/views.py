@@ -295,6 +295,8 @@ class MessageView(generics.ListCreateAPIView):
             ride=ride, sender=user, content=self.request.data['message']
         )
 
+        # TODO: Send an email to user that someone has sent your a message
+
         serializer = self.get_serializer(message)
         return Response(serializer.data)
 
@@ -390,7 +392,7 @@ class PassengerRideView(generics.CreateAPIView):
         ride.seats_available = ride.seats_available - 1
         ride.save()
 
-        # HEREEEEEEEE
+        # TODO: Send an email to user that someone has booked your ride
 
         return Response({'detail': 'Your ride has been confirmed'})
 
@@ -418,9 +420,10 @@ class PassengerRideCancelView(generics.DestroyAPIView):
 class ImageUploadView(generics.CreateAPIView):
     name = 'image-upload-view'
     parser_classes = [MultiPartParser]
+    authentication_classes = []
 
     def post(self, request, *args, **kwargs):
-        email = self.request.auth_context['user']
+        email = self.request.data.get('email')
         user = User.objects.get(email=email)
 
         if self.request.FILES and 'profile_photo' in self.request.FILES:
