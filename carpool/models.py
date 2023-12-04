@@ -15,9 +15,9 @@ class User(models.Model):
     api_secret = models.CharField(max_length=45, null=True)
     bio = models.TextField(null=True, blank=True)
 
-    speaks = models.JSONField(null=True, blank=True)
-    studies = models.CharField(max_length=100, null=True)
-    from_location = models.CharField(max_length=100, null=True)
+    speaks = models.JSONField(null=True, blank=True, default=[])
+    studies = models.CharField(max_length=100, null=True, default='')
+    from_location = models.CharField(max_length=100, null=True, default='San Marcos, TX')
 
     profile_photo_base64 = models.TextField(null=True)
     cover_photo_base64 = models.TextField(null=True)
