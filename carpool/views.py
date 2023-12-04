@@ -146,10 +146,12 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
 
         phone = self.request.data.get('phone')
         speaks = self.request.data.get('speaks')
+        bio = self.request.data.get('bio')
         studies = self.request.data.get('studies')
         from_location = self.request.data.get('from_location')
 
         user.speaks = speaks
+        user.bio = bio
         user.studies = studies
         user.from_location = from_location
         user.phone = phone
