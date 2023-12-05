@@ -130,7 +130,6 @@ class RidePassengerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RidePassenger
-        # TODO: Add fields here of source and destination
         fields = ['ride', 'passenger']
 
 

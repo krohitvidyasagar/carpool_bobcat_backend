@@ -234,7 +234,6 @@ class DriverReviewListCreateView(generics.ListCreateAPIView):
     serializer_class = DriverReviewSerializer
 
     def get(self, request, *args, **kwargs):
-        # TODO: Modify this API according to what Kathia needs
         driver_email = self.request.query_params['driver']
         driver = User.objects.get(email=driver_email)
 
