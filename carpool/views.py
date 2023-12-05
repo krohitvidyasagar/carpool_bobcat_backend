@@ -297,7 +297,7 @@ class MessageView(generics.ListCreateAPIView):
             ride=ride, sender=user, content=self.request.data['message']
         )
 
-        # TODO: Send an email to user that someone has sent your a message
+        EmailUtils.send_message_notification_email(user, message)
 
         serializer = self.get_serializer(message)
         return Response(serializer.data)

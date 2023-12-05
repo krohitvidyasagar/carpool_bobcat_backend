@@ -127,6 +127,33 @@ class EmailUtils:
         cls.send_email(user.email, subject, body)
 
     @classmethod
+    def send_message_notification_email(cls, user, message):
+        if user.email == message.sender.email:
+            email_address = message.ride.driver.email
+            email_to = message.ride.driver.name
+        else:
+            email_address = message.sender.email
+            email_to = message.sender.name
+
+        subject = "New Message in Bobcat Carpool"
+
+        body = f'''
+            <p>Dear {email_to},</p>
+
+            <p>We trust this message finds you well.</p>
+
+            <p>We wanted to inform you that you have received a new message from {message.sender.name} in the carpool
+            application. Please log in to your account to view and respond to the message at your convenience.</p>
+
+            <p>Thank you for contributing to our carpooling initiative!</p>
+
+            <p>Best regards,</p>
+            <p>Rohit</p>
+            <p>Bobcat Carpool</p>
+            '''
+        cls.send_email(email_address, subject, body)
+
+    @classmethod
     def generate_email_verification_api_secret(cls):
         return secrets.token_urlsafe()
 
