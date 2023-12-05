@@ -386,7 +386,7 @@ class PassengerRideView(generics.CreateAPIView):
         # Define the time range for departure (2 hours from now)
         pickup_time = datetime.strptime(self.request.data['datetime'], '%Y-%m-%dT%H:%M')
 
-        RidePassenger.objects.create(
+        ride_passenger = RidePassenger.objects.create(
             ride=ride, passenger=user, pickup_location=pickup_location, pickup_coordinates=passenger_source,
             drop_off_location=drop_off_location, drop_off_coordinates=passenger_destination, pickup_time=pickup_time
         )
@@ -394,7 +394,7 @@ class PassengerRideView(generics.CreateAPIView):
         ride.seats_available = ride.seats_available - 1
         ride.save()
 
-        # TODO: Send an email to user that someone has booked your ride
+        EmailUtils.send_ride_confirmation_email(user, ride_passenger)
 
         return Response({'detail': 'Your ride has been confirmed'})
 

@@ -95,6 +95,38 @@ class EmailUtils:
         cls.send_email(user.email, subject, body)
 
     @classmethod
+    def send_ride_confirmation_email(cls, user, ride_passenger):
+        subject = "Booking Confirmation: Your Ride Has Been Reserved"
+
+        body = f'''
+        <p>Dear {user.name},</p>
+        
+        <p>We trust this message finds you well.</p>
+
+        <p>I'm pleased to inform you that a traveler has booked a ride in Bobcat carpool.</p>
+        
+        <ul>
+        <li>Number of Passengers: 1</li>
+        <li>Pick-up Location: {ride_passenger.pickup_location}</li>
+        <li>Drop-off Location: {ride_passenger.drop_off_location}</li>
+        <li>Drop-off Location: {ride_passenger.drop_off_location}</li>
+        </ul>
+
+        <p>Your willingness to share your journey is greatly appreciated. 
+        Your scheduled ride is an important part of our community-driven service.</p>
+
+        <p>Please ensure that you're prepared to accommodate the passengers and provide a safe and comfortable trip 
+        from the pick-up point to the drop-off location.</p>
+        
+        <p>Thank you for contributing to our carpooling initiative!</p>
+        
+        <p>Best regards,</p>
+        <p>Rohit</p>
+        <p>Bobcat Carpool</p>
+        '''
+        cls.send_email(user.email, subject, body)
+
+    @classmethod
     def generate_email_verification_api_secret(cls):
         return secrets.token_urlsafe()
 
